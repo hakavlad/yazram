@@ -1,0 +1,12 @@
+[Unit]
+Description=yazram
+
+[Service]
+Type=oneshot
+ExecStart=-:TARGET_BIN:/zram-on
+ExecStop=-:TARGET_BIN:/zram-off
+TimeoutStartSec=60
+RemainAfterExit=yes
+
+[Install]
+WantedBy=sysinit.target

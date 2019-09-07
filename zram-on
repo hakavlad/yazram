@@ -1,0 +1,17 @@
+#!/bin/sh
+
+FRACTION=200
+ALG=zstd
+
+modprobe -v zram num_devices=4
+
+echo "$ALG" > /sys/block/zram0/comp_algorithm
+
+MEMORY=`perl -ne'/^MemTotal:\s+(\d+)/ && print $1*1024;' < /proc/meminfo`
+SIZE=$(( MEMORY * FRACTION / 100 ))
+
+echo $SIZE > /sys/block/zram0/disksize
+# echo 10G > /sys/block/zram0/disksize
+
+mkswap -L zram0 /dev/zram0
+swapon -d -p 10 /dev/zram0
