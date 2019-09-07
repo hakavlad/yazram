@@ -1,7 +1,7 @@
 
 ## Yet another zram manager
 
-This is service that makes swapspace on zram device with `disksize` = `2Memtotal` and `alg` = `zstd`.
+This is a service that makes swapspace on a zram device with `diskize` = `2MemTotal` and `alg` = `zstd`.
 
 To install the latest version:
 ```bash
