@@ -2,18 +2,18 @@
 
 # doc: https://www.kernel.org/doc/Documentation/blockdev/zram.txt
 
-ZRAM_DISKSIZE_FRACTION=150   # disksize = MemTotal * ZRAM_DISKSIZE_FRACTION / 100
+ZRAM_DISKSIZE_FRACTION=200   # disksize = MemTotal * ZRAM_DISKSIZE_FRACTION / 100
 COMPRESSION_ALG=lzo          # lzo, lz4, zstd
 
 # tune VM if you want
-# echo "67000" > /proc/sys/vm/min_free_kbytes
-# echo "60" > /proc/sys/vm/swappiness
-# echo "100" > /proc/sys/vm/vfs_cache_pressure
-# echo "3" > /proc/sys/vm/page-cluster
+# echo 67000 > /proc/sys/vm/min_free_kbytes
+# echo 60 > /proc/sys/vm/swappiness
+# echo 100 > /proc/sys/vm/vfs_cache_pressure
+# echo 3 > /proc/sys/vm/page-cluster
 
 modprobe -v zram num_devices=4
 
-echo "$COMPRESSION_ALG" > /sys/block/zram0/comp_algorithm
+echo $COMPRESSION_ALG > /sys/block/zram0/comp_algorithm
 
 MEMORY_TOTAL=`perl -ne'/^MemTotal:\s+(\d+)/ && print $1*1024;' < /proc/meminfo`
 ZRAM_DISKSIZE=$(( MEMORY_TOTAL * ZRAM_DISKSIZE_FRACTION / 100 ))

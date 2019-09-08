@@ -4,7 +4,7 @@
 swapoff /dev/zram0
 
 # Reset zram
-echo "1" > /sys/block/zram0/reset
+echo 1 > /sys/block/zram0/reset
 
 # Remove zram module
 modprobe -v -r zram
