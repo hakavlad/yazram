@@ -2,14 +2,22 @@
 
 # doc: https://www.kernel.org/doc/Documentation/blockdev/zram.txt
 
+# disable other swapspaces
+# swapoff -a
+
+# disable zswap
+# echo 0 > /sys/module/zswap/parameters/enabled
+
 ZRAM_DISKSIZE_FRACTION=200   # disksize = MemTotal * ZRAM_DISKSIZE_FRACTION / 100
-COMPRESSION_ALG=lzo          # lzo, lz4, zstd
+ZRAM_MEM_LIMIT_FRACTION=60   # mem_limit = MemTotal * ZRAM_MEM_LIMIT_FRACTION / 100
+COMPRESSION_ALG=lzo-rle      # lzo, lzo-rle, lz4, zstd
 
 # tune VM if you want
 # echo 67000 > /proc/sys/vm/min_free_kbytes
 # echo 60 > /proc/sys/vm/swappiness
 # echo 100 > /proc/sys/vm/vfs_cache_pressure
 # echo 3 > /proc/sys/vm/page-cluster
+# vm.watermark_scale_factor=10
 
 modprobe -v zram num_devices=4
 
@@ -20,6 +28,9 @@ ZRAM_DISKSIZE=$(( MEMORY_TOTAL * ZRAM_DISKSIZE_FRACTION / 100 ))
 
 echo $ZRAM_DISKSIZE > /sys/block/zram0/disksize
 # echo 10G > /sys/block/zram0/disksize
+
+ZRAM_MEM_LIMIT=$(( MEMORY_TOTAL * ZRAM_MEMLIMIT_FRACTION / 100 ))
+echo $ZRAM_MEM_LIMIT > /sys/block/zram0/mem_limit
 
 mkswap -L zram0 /dev/zram0
 swapon -d -p 100 /dev/zram0
