@@ -17,7 +17,7 @@ COMPRESSION_ALG=lzo-rle      # lzo, lzo-rle, lz4, zstd
 # echo 60 > /proc/sys/vm/swappiness
 # echo 100 > /proc/sys/vm/vfs_cache_pressure
 # echo 3 > /proc/sys/vm/page-cluster
-# vm.watermark_scale_factor=10
+# echo 10 > /proc/sys/vm/watermark_scale_factor
 
 modprobe -v zram num_devices=4
 
