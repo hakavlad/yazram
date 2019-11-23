@@ -1,25 +1,28 @@
 #!/bin/sh -v
 
-# doc: https://www.kernel.org/doc/Documentation/blockdev/zram.txt
-
 # disable other swapspaces
 # swapoff -a
 
-# disable zswap
-# echo 0 > /sys/module/zswap/parameters/enabled
+# disable zswap (not recommended to combine zram and zswap)
+echo 0 > /sys/module/zswap/parameters/enabled
 
+# tune zram
+# doc: https://www.kernel.org/doc/Documentation/blockdev/zram.txt
+
+ZRAM_NUM_DEVICES=1
 ZRAM_DISKSIZE_FRACTION=200   # disksize = MemTotal * ZRAM_DISKSIZE_FRACTION / 100
-ZRAM_MEM_LIMIT_FRACTION=60   # mem_limit = MemTotal * ZRAM_MEM_LIMIT_FRACTION / 100
+ZRAM_MEM_LIMIT_FRACTION=80   # mem_limit = MemTotal * ZRAM_MEM_LIMIT_FRACTION / 100
 COMPRESSION_ALG=lzo-rle      # lzo, lzo-rle, lz4, zstd
 
-# tune VM if you want
-# echo 67000 > /proc/sys/vm/min_free_kbytes
-# echo 60 > /proc/sys/vm/swappiness
-# echo 100 > /proc/sys/vm/vfs_cache_pressure
-# echo 3 > /proc/sys/vm/page-cluster
-# echo 10 > /proc/sys/vm/watermark_scale_factor
+# tune vm
+# doc: https://www.kernel.org/doc/Documentation/sysctl/vm.txt
 
-modprobe -v zram num_devices=4
+SWAPPINESS=100               # vm.swappiness
+OVERCOMMIT_MEMORY=1          # vm.overcommit_memory # 0 (euristic), 1 , 2
+MIN_FREE_KBYTES_FRACTION=3   # vm.min_free_kbytes = MemTotal * MIN_FREE_KBYTES_FRACTION / 100
+                             # don't set MIN_FREE_KBYTES_FRACTION values > 5 (% MemTotal)
+
+modprobe -v zram num_devices=$ZRAM_NUM_DEVICES
 
 echo $COMPRESSION_ALG > /sys/block/zram0/comp_algorithm
 
@@ -29,8 +32,13 @@ ZRAM_DISKSIZE=$(( MEMORY_TOTAL * ZRAM_DISKSIZE_FRACTION / 100 ))
 echo $ZRAM_DISKSIZE > /sys/block/zram0/disksize
 # echo 10G > /sys/block/zram0/disksize
 
-ZRAM_MEM_LIMIT=$(( MEMORY_TOTAL * ZRAM_MEMLIMIT_FRACTION / 100 ))
+ZRAM_MEM_LIMIT=$(( MEMORY_TOTAL * ZRAM_MEM_LIMIT_FRACTION / 100 ))
 echo $ZRAM_MEM_LIMIT > /sys/block/zram0/mem_limit
+
+MIN_FREE_KBYTES=$(( MEMORY_TOTAL * MIN_FREE_KBYTES_FRACTION / 1024 / 100 ))
+echo $MIN_FREE_KBYTES > /proc/sys/vm/min_free_kbytes
+echo $SWAPPINESS > /proc/sys/vm/swappiness
+echo $OVERCOMMIT_MEMORY > /proc/sys/vm/overcommit_memory
 
 mkswap -L zram0 /dev/zram0
 swapon -d -p 100 /dev/zram0

@@ -1,12 +1,13 @@
 [Unit]
-Description=yazram
+Description=A service that makes swap space on a zram device and tunes virtual memory to improve UX with swap space on zram
 
 [Service]
 Type=oneshot
 ExecStart=-:TARGET_BIN:/zram-on
 ExecStop=-:TARGET_BIN:/zram-off
 TimeoutStartSec=60
+TimeoutStopSec=600
 RemainAfterExit=yes
 
 [Install]
-WantedBy=sysinit.target
+WantedBy=multi-user.target

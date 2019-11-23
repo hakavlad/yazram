@@ -1,7 +1,8 @@
 
 ## Yet another zram manager
 
-This is a service that makes swapspace on a zram device. Edit `zram-on` to configure.
+This is a service that makes swap space on a zram device and tunes virtual memory to improve UX with swap space on zram. Edit `zram-on` to configure.
+
 
 To install the latest version:
 ```bash
